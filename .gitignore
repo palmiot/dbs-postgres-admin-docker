@@ -1,0 +1,5 @@
+!.gitignore
+/.env
+/conf/postgres.conf
+/databases/sql/*
+!/databases/.gitkeep

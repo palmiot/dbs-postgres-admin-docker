@@ -1,0 +1,40 @@
+version: "3"
+
+networks:
+  pvc:
+    ipam:
+      config:
+        - subnet: ${DBS_NETWORK}
+
+services:
+
+  sql:
+    image: ${DBS_SERVERS_SQL_IMAGE}
+    container_name: sql-${DBS_NAME}
+    restart: always
+    volumes:
+        - ./conf/postgres.conf:/usr/share/postgresql/postgresql.conf
+        - ${DBS_SHARED_SQL}:/var/lib/postgresql/data
+    environment:
+        POSTGRES_PASSWORD: ${DBS_SERVERS_SQL_ROOT_PASSWORD}
+    ports:
+        - ${DBS_SERVERS_SQL_PORT}:5432
+    networks:
+      pvc:
+        ipv4_address: ${DBS_SERVERS_SQL_IP}
+
+  sql-web:
+    image: ${DBS_PANELS_SQL_IMAGE}
+    container_name: sql-web-${DBS_NAME}
+    restart: always
+    environment:
+        ADMINER_PLUGINS: ${DBS_PANELS_SQL_PLUGINS}
+        ADMINER_DESIGN: ${DBS_PANELS_SQL_DESIGN}
+        ADMINER_DEFAULT_SERVER: sql
+    links:
+      - sql
+    ports:
+        - ${DBS_PANELS_SQL_PORT}:8080
+    networks:
+      pvc:
+        ipv4_address: ${DBS_PANELS_SQL_IP}
